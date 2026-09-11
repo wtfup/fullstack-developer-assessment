@@ -1,0 +1,85 @@
+# proposed-patch.diff — "class-ops booking fixes, take 1"
+# From a teammate who had a quick look. Apply from the repo root with:
+#   patch -p1 < part2/notes/proposed-patch.diff
+# (or read it first — that is what PATCH_REVIEW.md is for.)
+--- a/part2/app/server.mjs
++++ b/part2/app/server.mjs
+@@ -177,7 +177,7 @@
+     const limit = parseCount(url.searchParams.get('limit'), { fallback: 5, max: 20 });
+     if (limit === null) return sendError(res, 400, 'validation', 'limit must be an integer between 1 and 20');
+     const rows = (await pool.query(
+-      `SELECT c.id, c.title, count(b.id)::int AS bookings
++      `SELECT c.id, c.title, count(DISTINCT b.member_id)::int AS bookings
+        FROM classes c
+        JOIN bookings b ON b.class_id = c.id
+        GROUP BY c.id, c.title
+@@ -204,6 +204,18 @@
+     }
+     const idempotencyKey = req.headers['idempotency-key'] ? String(req.headers['idempotency-key']) : null;
+ 
++    if (idempotencyKey) {
++      const existing = await pool.query(
++        `SELECT * FROM bookings
++         WHERE class_id = $1 AND member_id = $2 AND status <> 'cancelled'
++         ORDER BY id ASC LIMIT 1`,
++        [classId, memberId],
++      );
++      if (existing.rowCount > 0) {
++        return sendJson(res, 201, { booking: mapBooking(existing.rows[0]) });
++      }
++    }
++
+     const cls = await pool.query('SELECT id, capacity FROM classes WHERE id = $1', [classId]);
+     if (cls.rowCount === 0) return sendError(res, 404, 'not_found', `Class ${classId} does not exist`);
+     const member = await pool.query('SELECT id FROM members WHERE id = $1', [memberId]);
+@@ -213,7 +225,7 @@
+       `SELECT count(*)::int AS n FROM bookings WHERE class_id = $1 AND status <> 'cancelled'`,
+       [classId],
+     )).rows[0].n;
+-    if (takenSeats > cls.rows[0].capacity) {
++    if (takenSeats >= cls.rows[0].capacity) {
+       return sendError(res, 409, 'class_full', 'Class has no remaining seats');
+     }
+ 
+--- a/part2/app/web/app.js
++++ b/part2/app/web/app.js
+@@ -50,16 +50,29 @@
+     return;
+   }
+ 
+-  const rows = items
+-    .map((c) => `
+-      <tr data-class-id="${c.id}">
+-        <td class="class-title">${c.title}</td>
+-        <td class="starts-at">${formatIst(c.startsAt)}</td>
+-        <td class="coach">${c.coach}</td>
+-        <td class="seats">${c.bookedCount}/${c.capacity}</td>
+-      </tr>`)
+-    .join('');
+-  tbody.insertAdjacentHTML('beforeend', rows);
++  for (const c of items) {
++    const tr = document.createElement('tr');
++    tr.dataset.classId = String(c.id);
++
++    const title = document.createElement('td');
++    title.className = 'class-title';
++    title.textContent = c.title;
++
++    const startsAt = document.createElement('td');
++    startsAt.className = 'starts-at';
++    startsAt.textContent = formatIst(c.startsAt);
++
++    const coach = document.createElement('td');
++    coach.className = 'coach';
++    coach.textContent = c.coach;
++
++    const seats = document.createElement('td');
++    seats.className = 'seats';
++    seats.textContent = `${c.bookedCount}/${c.capacity}`;
++
++    tr.append(title, startsAt, coach, seats);
++    tbody.appendChild(tr);
++  }
+ 
+   el('#classes-status').textContent = `${tbody.querySelectorAll('tr').length} classes shown`;
+ }

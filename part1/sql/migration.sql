@@ -1,0 +1,2 @@
+-- Part 1 — migration task. Implement the migration described in part1/specs/SQL_TASKS.md
+-- (add invoices.paid_at, backfill it from payments, create the payments(received_on) index).
