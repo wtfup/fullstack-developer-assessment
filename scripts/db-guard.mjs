@@ -7,7 +7,7 @@ export function assertDatabaseUrl(value = process.env.DATABASE_URL || DEFAULT_DA
   try { url = new URL(value); } catch { throw new Error('Lab database URL required'); }
   if (!['postgres:', 'postgresql:'].includes(url.protocol)
       || !['127.0.0.1', 'localhost', 'db'].includes(url.hostname)
-      || !['', '55440'].includes(url.port)
+      || !['', '5432', '55440'].includes(url.port)
       || url.pathname !== '/fullstack'
       || url.username !== 'fullstack'
       || url.password !== 'fullstack'

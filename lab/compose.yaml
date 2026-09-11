@@ -32,9 +32,6 @@ services:
       - ../tests:/app/tests
       - ../scripts:/app/scripts
       - ../session:/app/session
-      - ../package.json:/app/package.json:ro
-      - ../playwright.part1.config.ts:/app/playwright.part1.config.ts:ro
-      - ../playwright.part2.config.ts:/app/playwright.part2.config.ts:ro
       - ${FULLSTACK_PRIVATE_DIR:-./empty-private}:/app/private
     depends_on:
       db:

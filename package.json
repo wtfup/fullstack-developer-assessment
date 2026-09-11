@@ -13,9 +13,9 @@
     "db:reset": "node scripts/db-reset.mjs all",
     "db:reset:part1": "node scripts/db-reset.mjs part1",
     "db:reset:part2": "node scripts/db-reset.mjs part2",
-    "test:part1": "node --test tests/part1",
+    "test:part1": "node --test 'tests/part1/*.test.mjs'",
     "test:part1:e2e": "playwright test -c playwright.part1.config.ts",
-    "test:part2": "node --test tests/part2",
+    "test:part2": "node --test 'tests/part2/*.test.mjs'",
     "test:part2:e2e": "playwright test -c playwright.part2.config.ts",
     "session": "node scripts/session.mjs",
     "verify:submission": "bash scripts/verify-submission.sh"
