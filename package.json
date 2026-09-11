@@ -1,0 +1,29 @@
+{
+  "name": "fullstack-developer-assessment",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "lab:build": "docker compose -f lab/compose.yaml build",
+    "lab:up": "docker compose -f lab/compose.yaml up -d --wait",
+    "lab:down": "docker compose -f lab/compose.yaml down",
+    "db:reset": "node scripts/db-reset.mjs all",
+    "db:reset:part1": "node scripts/db-reset.mjs part1",
+    "db:reset:part2": "node scripts/db-reset.mjs part2",
+    "test:part1": "node --test tests/part1",
+    "test:part1:e2e": "playwright test -c playwright.part1.config.ts",
+    "test:part2": "node --test tests/part2",
+    "test:part2:e2e": "playwright test -c playwright.part2.config.ts",
+    "session": "node scripts/session.mjs",
+    "verify:submission": "bash scripts/verify-submission.sh"
+  },
+  "dependencies": {
+    "pg": "8.16.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.58.2"
+  }
+}

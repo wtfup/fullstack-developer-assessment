@@ -1,0 +1,2 @@
+# Default mount target when FULLSTACK_PRIVATE_DIR is not set.
+# Keep this directory empty; it exists so the lab works without private materials.

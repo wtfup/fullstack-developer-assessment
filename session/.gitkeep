@@ -1,0 +1,3 @@
+# Session evidence directory. Candidates run `npm run session -- start part1` /
+# `-- end part1` and keep their evidence here. Contents are collected by the
+# supervisor; they are not committed (see .gitignore).

@@ -1,0 +1,11 @@
+node_modules/
+session/*
+!session/.gitkeep
+test-results/
+playwright-report/
+*.log
+.DS_Store
+*.tsbuildinfo
+coverage/
+.env*
+!.env.example

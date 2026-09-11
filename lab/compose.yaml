@@ -1,0 +1,46 @@
+name: fullstack-assessment
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: fullstack
+      POSTGRES_PASSWORD: fullstack
+      POSTGRES_DB: fullstack
+    ports:
+      - "127.0.0.1:55440:5432"
+    volumes:
+      - fs-assess-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fullstack -d fullstack"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    networks: [lab]
+  tools:
+    build:
+      context: ..
+      dockerfile: lab/Dockerfile
+    image: fullstack-tools:local
+    init: true
+    command: ["sleep", "infinity"]
+    environment:
+      DATABASE_URL: postgresql://fullstack:fullstack@db:5432/fullstack
+      CI: "1"
+    volumes:
+      - ../part1:/app/part1
+      - ../part2:/app/part2
+      - ../tests:/app/tests
+      - ../scripts:/app/scripts
+      - ../session:/app/session
+      - ../package.json:/app/package.json:ro
+      - ../playwright.part1.config.ts:/app/playwright.part1.config.ts:ro
+      - ../playwright.part2.config.ts:/app/playwright.part2.config.ts:ro
+      - ${FULLSTACK_PRIVATE_DIR:-./empty-private}:/app/private
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [lab]
+volumes:
+  fs-assess-db:
+networks:
+  lab:

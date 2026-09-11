@@ -1,0 +1,7 @@
+.git
+node_modules
+session
+test-results
+playwright-report
+*.log
+.DS_Store
